@@ -1,0 +1,582 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "18ajyP2aChr4JOe0Ae-I60z5ZGHtDzu79",
+          "mode": "list",
+          "cachedResultName": "Resumes",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/18ajyP2aChr4JOe0Ae-I60z5ZGHtDzu79"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        32,
+        -80
+      ],
+      "id": "151ae073-3750-4b81-9677-6edb18628db2",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "fYMOrrBnBVemFVG9",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        -80
+      ],
+      "id": "68a0ec50-d8a3-4e52-bed7-396078285296",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        144
+      ],
+      "id": "766a8574-1e08-4a85-846e-199a681c1ea0",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an ATS hiring assistant.\n\nCompare the following resume against the job description and return ONLY valid JSON with:\n- candidate_name\n- match_score (0–100)\n- matched_skills\n- missing_skills\n- summary\n\nJob Description:\n{{ $json.jd_text }}\n\nResume:\n{{ $json.resume_text }}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        208
+      ],
+      "id": "1c151aec-6caa-4f46-bf2e-5ae3091e7b86",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "1CBRd0IRlqsEetI3",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1S5fll1ySw6nfutJlnBQuZCQ-w_nd1w_ahila9ChuSN8",
+          "mode": "list",
+          "cachedResultName": "ATS_Resume_Scoring",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1S5fll1ySw6nfutJlnBQuZCQ-w_nd1w_ahila9ChuSN8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1S5fll1ySw6nfutJlnBQuZCQ-w_nd1w_ahila9ChuSN8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{$now}}\n",
+            "Candidate Name": "={{$json.candidate_name}}\n",
+            "Candidate Email": "={{$json.candidate_email}}\n",
+            "Candidate Mobile": "={{ \"'\" + $json.candidate_mobile }}\n",
+            "Resume File Name": "={{$json.resume_file_name}}\n",
+            "Resume File Link": "={{$json.resume_file_link}}\n",
+            "Match Score": "={{$json.match_score}}\n",
+            "Matched Skills": "={{$json.matched_skills.join(\", \")}}\n",
+            "Summary": "={{$json.summary}}\n"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Candidate Name",
+              "displayName": "Candidate Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Candidate Email",
+              "displayName": "Candidate Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Candidate Mobile",
+              "displayName": "Candidate Mobile",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resume File Name",
+              "displayName": "Resume File Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resume File Link",
+              "displayName": "Resume File Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Match Score",
+              "displayName": "Match Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Matched Skills",
+              "displayName": "Matched Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1504,
+        160
+      ],
+      "id": "7b537112-b006-4efb-bf12-98cd7e6fd8aa",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "j0TYCZo35zXGCvt8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// This node stores Job Description text as jd_text\n\nconst items = $input.all();\n\nreturn items.map(item => {\n  return {\n    json: {\n      jd_text: item.json.text\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        144
+      ],
+      "id": "15d50ca8-933a-448e-930b-45d8be8e83eb",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        800,
+        96
+      ],
+      "id": "a02c5611-5c9f-41f8-a8b2-46eea600b960",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1072,
+        0
+      ],
+      "id": "43f83ebc-14da-4f4f-9a11-47f6dce16bf9",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{$json[\"id\"]}}\n",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        240,
+        -32
+      ],
+      "id": "7e3a21ca-15aa-4536-b776-5438158d709e",
+      "name": "Download Resume file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "fYMOrrBnBVemFVG9",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "10wLv5EvkNE6XRmXIcZT8Jj_otiZwG8Qz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        240,
+        128
+      ],
+      "id": "0e435937-ef59-42f0-930d-9f355407002e",
+      "name": "Download  JD file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "fYMOrrBnBVemFVG9",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      resume_file_name: $json.name || \"Unknown Resume\",\n      resume_file_link: $json.webViewLink || \"Link not available\",\n      resume_file_id: $json.id || null\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        -288
+      ],
+      "id": "99e88a8a-4eaf-4455-8ded-112dc93cde05",
+      "name": "Js for File link"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.text || \"\";\n\n// Extract email\nconst emailMatch = text.match(\n  /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/\n);\n\n// Extract phone (India-friendly)\nconst phoneMatch = text.match(\n  /(\\+91[\\s-]?)?\\d{5}[\\s-]?\\d{5}/\n);\n\nreturn [\n  {\n    json: {\n      candidate_email: emailMatch ? emailMatch[0] : \"Not found\",\n      candidate_mobile: phoneMatch ? phoneMatch[0] : \"Not found\"\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        -144
+      ],
+      "id": "5a19cd6a-606e-4264-b87c-fed5da81bd6a",
+      "name": "Js for Mobile/email"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.text || \"\";\n\nreturn [\n  {\n    json: {\n      resume_text: text,\n      \n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "f021340f-b9b0-4150-928a-3cc55754ff2a",
+      "name": "Js for all text "
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.content.parts[0].text;\n\n// Remove ```json fences if present\nconst cleaned = raw\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\nconst parsed = JSON.parse(cleaned);\n\nreturn [\n  {\n    json: parsed\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        240
+      ],
+      "id": "b1da724c-24e2-4bb1-8493-8a6bbd74be5d",
+      "name": "Js clean"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1344,
+        32
+      ],
+      "id": "19508838-5f46-4ff7-9f2d-005f3fcc88c1",
+      "name": "Final data merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download Resume file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download  JD file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Js for File link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Js for Mobile/email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Js for all text ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Js clean",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Final data merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Resume file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download  JD file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Js for File link": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Js for Mobile/email": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Js for all text ": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Js clean": {
+      "main": [
+        [
+          {
+            "node": "Final data merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Final data merge": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "bc5ab7b8-5039-42ed-9498-aaca2470b702",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f99a2c8616760199f13c60a69ad521a059c68dc719cd751e37a4b934cf4d0fb8"
+  },
+  "id": "AyyPW5eveljQA8rR",
+  "tags": []
+}
